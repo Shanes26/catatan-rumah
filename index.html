@@ -111,6 +111,23 @@ body{display:flex;justify-content:center}
 .income-amount.carryover{color:var(--blue)}
 .btn-del-income{width:26px;height:26px;border-radius:6px;border:none;background:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition);flex-shrink:0}
 .btn-del-income:hover{background:var(--red-bg);color:var(--red)}
+.btn-edit-income{width:26px;height:26px;border-radius:6px;border:none;background:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition);flex-shrink:0}
+.btn-edit-income:hover{background:var(--blue-bg);color:var(--blue)}
+.btn-edit-cat{font-size:13px;font-family:inherit;padding:9px 13px;border:1px solid var(--border2);border-radius:var(--radius-xs);background:none;color:var(--text3);cursor:pointer;transition:all var(--transition);display:flex;align-items:center;justify-content:center}
+.btn-edit-cat:hover{background:var(--blue-bg);color:var(--blue);border-color:rgba(96,165,250,0.3)}
+.btn-edit-cat:active{transform:scale(0.97)}
+.btn-hist-cat{font-size:13px;font-family:inherit;padding:9px 13px;border:1px solid var(--border2);border-radius:var(--radius-xs);background:none;color:var(--text3);cursor:pointer;transition:all var(--transition);display:flex;align-items:center;justify-content:center;gap:5px;font-weight:700}
+.btn-hist-cat:hover{background:var(--purple-bg);color:var(--purple);border-color:rgba(167,139,250,0.3)}
+.btn-hist-cat:active{transform:scale(0.97)}
+.cat-spent-info{font-size:11px;color:var(--text3);margin-top:2px;font-weight:600}
+/* MODAL CAT HISTORY */
+.cat-hist-txn{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
+.cat-hist-txn:last-child{border-bottom:none}
+.cat-hist-dot{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.cat-hist-body{flex:1;min-width:0}
+.cat-hist-desc{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-hist-date{font-size:11px;color:var(--text3);margin-top:2px}
+.cat-hist-amt{font-size:13px;font-weight:800;color:var(--red);flex-shrink:0}
 
 /* STATS */
 .stats-row{display:flex;gap:10px;padding:0 16px;margin-top:12px}
@@ -284,6 +301,10 @@ body{display:flex;justify-content:center}
           <span id="bar-used-label">Dianggarkan Rp 0</span>
           <span class="summary-sisa" id="bar-sisa-label">Sisa Rp 0</span>
         </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.15)">
+          <span style="font-size:11px;letter-spacing:0.07em;text-transform:uppercase;color:rgba(255,255,255,0.65);font-weight:600">Total Pengeluaran</span>
+          <span id="summary-total-spent" style="font-size:15px;font-weight:800;color:rgba(255,255,255,0.95)">Rp 0</span>
+        </div>
       </div>
 
       <!-- Income list -->
@@ -305,7 +326,7 @@ body{display:flex;justify-content:center}
           <div class="stat-chip-val ok" id="stat-cat">0</div>
         </div>
         <div class="stat-chip">
-          <div class="stat-chip-label">Terpakai</div>
+          <div class="stat-chip-label">Total Pengeluaran</div>
           <div class="stat-chip-val danger" id="stat-spent">Rp 0</div>
         </div>
         <div class="stat-chip">
@@ -459,6 +480,54 @@ body{display:flex;justify-content:center}
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('modal-spend')">Batal</button>
       <button class="btn-ok" onclick="saveSpend()">Catat</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Category Transaction History -->
+<div class="modal-bg" id="modal-cat-hist">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="cat-hist-title">Riwayat Transaksi</h2>
+    <p class="modal-sub" id="cat-hist-sub"></p>
+    <div id="cat-hist-list" style="max-height:360px;overflow-y:auto;margin:0 -4px;padding:0 4px"></div>
+    <div class="modal-actions" style="margin-top:20px">
+      <button class="btn-ok" onclick="closeModal('modal-cat-hist')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit Income -->
+<div class="modal-bg" id="modal-edit-income">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>✏️ Edit Pemasukan</h2>
+    <p class="modal-sub">Ubah keterangan atau nominal pemasukan</p>
+    <label>Keterangan / Sumber</label>
+    <input type="text" id="edit-income-label-input" placeholder="Contoh: Gaji, Freelance, Bonus…" />
+    <label>Jumlah (Rp)</label>
+    <input type="number" id="edit-income-amt-input" placeholder="Contoh: 5000000" inputmode="numeric" />
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-edit-income')">Batal</button>
+      <button class="btn-ok" onclick="saveEditIncome()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit Category -->
+<div class="modal-bg" id="modal-edit-cat">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>✏️ Edit Kategori</h2>
+    <p class="modal-sub" id="edit-cat-modal-sub">Ubah nama atau anggaran kategori</p>
+    <label>Nama Kategori</label>
+    <input type="text" id="edit-cat-name-input" placeholder="Misal: Makanan" />
+    <label>Anggaran (Rp)</label>
+    <input type="number" id="edit-cat-budget-input" placeholder="Misal: 1500000" inputmode="numeric" />
+    <div id="edit-cat-spent-note" style="font-size:12px;color:var(--amber);margin-top:8px;display:none;padding:8px 12px;background:var(--amber-bg);border-radius:var(--radius-xs);border:1px solid rgba(251,191,36,0.25)"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-edit-cat')">Batal</button>
+      <button class="btn-ok" onclick="saveEditCat()">Simpan</button>
     </div>
   </div>
 </div>
@@ -679,6 +748,33 @@ function deleteIncome(id){
   saveState();render();showToast('Pemasukan dihapus');
 }
 
+let editIncomeId=null;
+function openEditIncome(id){
+  if(currentMonth().closed){showToast('Bulan ini sudah ditutup');return;}
+  const m=currentMonth();
+  const item=m.incomes.find(i=>i.id===id);
+  if(!item){return;}
+  if(item.carryover){showToast('Sisa carry-over tidak bisa diedit manual');return;}
+  editIncomeId=id;
+  document.getElementById('edit-income-label-input').value=item.label;
+  document.getElementById('edit-income-amt-input').value=item.amount;
+  openModal('modal-edit-income');
+  setTimeout(()=>document.getElementById('edit-income-label-input').focus(),100);
+}
+function saveEditIncome(){
+  const label=document.getElementById('edit-income-label-input').value.trim();
+  const amount=parseFloat(document.getElementById('edit-income-amt-input').value);
+  if(!label){showToast('Masukkan keterangan pemasukan');return;}
+  if(isNaN(amount)||amount<=0){showToast('Masukkan jumlah yang valid');return;}
+  const m=currentMonth();
+  const item=m.incomes.find(i=>i.id===editIncomeId);
+  if(!item){showToast('Pemasukan tidak ditemukan');return;}
+  item.label=label;
+  item.amount=amount;
+  saveState();closeModal('modal-edit-income');render();
+  showToast('Pemasukan diperbarui ✓');
+}
+
 // ── CATEGORIES ────────────────────────────────────────────────────────
 let selectedPreset=null;
 function openAddCat(){
@@ -738,6 +834,73 @@ function deleteCat(i){
   saveState();render();showToast('Kategori dihapus');
 }
 
+let editCatIdx=null;
+function openEditCat(i){
+  if(currentMonth().closed){showToast('Bulan ini sudah ditutup');return;}
+  const m=currentMonth();
+  const cat=m.categories[i];
+  editCatIdx=i;
+  document.getElementById('edit-cat-name-input').value=cat.name;
+  document.getElementById('edit-cat-budget-input').value=cat.budget;
+  document.getElementById('edit-cat-modal-sub').textContent='Edit "'+cat.name+'"';
+  const noteEl=document.getElementById('edit-cat-spent-note');
+  if(cat.spent>0){
+    const p2=pct(cat.spent,cat.budget);
+    noteEl.textContent='⚠️ Sudah dibelanjakan '+fmt(cat.spent)+' ('+p2+'%). Anggaran baru tidak boleh kurang dari jumlah ini.';
+    noteEl.style.display='block';
+  } else {
+    noteEl.style.display='none';
+  }
+  openModal('modal-edit-cat');
+  setTimeout(()=>document.getElementById('edit-cat-budget-input').focus(),100);
+}
+function saveEditCat(){
+  const name=document.getElementById('edit-cat-name-input').value.trim();
+  const budget=parseFloat(document.getElementById('edit-cat-budget-input').value);
+  if(!name){showToast('Masukkan nama kategori');return;}
+  if(isNaN(budget)||budget<=0){showToast('Masukkan anggaran yang valid');return;}
+  const m=currentMonth();
+  const cat=m.categories[editCatIdx];
+  if(budget<cat.spent){showToast('Anggaran tidak boleh kurang dari yang sudah dibelanjakan ('+fmt(cat.spent)+')');return;}
+  // Cek nama duplikat (kecuali nama diri sendiri)
+  const duplicate=m.categories.find((c,idx)=>idx!==editCatIdx&&c.name.toLowerCase()===name.toLowerCase());
+  if(duplicate){showToast('Nama kategori sudah digunakan');return;}
+  // Update nama di transaksi jika nama berubah
+  if(cat.name!==name){
+    m.transactions.forEach(t=>{if(t.cat===cat.name)t.cat=name;});
+  }
+  cat.name=name;
+  cat.budget=budget;
+  saveState();closeModal('modal-edit-cat');render();
+  showToast('Kategori diperbarui ✓');
+}
+
+function openCatHist(i){
+  const m=currentMonth();
+  const cat=m.categories[i];
+  const p=getPreset(cat.name);
+  const txns=[...m.transactions].filter(t=>t.cat===cat.name).reverse();
+  document.getElementById('cat-hist-title').textContent=p.emoji+' '+cat.name;
+  const total=txns.reduce((s,t)=>s+t.amt,0);
+  document.getElementById('cat-hist-sub').textContent=
+    txns.length+' transaksi · Total '+fmt(total);
+  const listEl=document.getElementById('cat-hist-list');
+  if(!txns.length){
+    listEl.innerHTML=`<div class="empty" style="padding:32px 0"><div class="empty-icon" style="font-size:32px">📄</div><p style="font-size:13px">Belum ada transaksi di kategori ini.</p></div>`;
+  } else {
+    listEl.innerHTML=txns.map(t=>`
+      <div class="cat-hist-txn">
+        <div class="cat-hist-dot" style="background:${p.bg}">${p.emoji}</div>
+        <div class="cat-hist-body">
+          <div class="cat-hist-desc">${t.desc||cat.name}</div>
+          <div class="cat-hist-date">${t.date}</div>
+        </div>
+        <div class="cat-hist-amt">-${fmt(t.amt)}</div>
+      </div>`).join('');
+  }
+  openModal('modal-cat-hist');
+}
+
 // ── RENDER ────────────────────────────────────────────────────────────
 function render(){
   const m=currentMonth();
@@ -761,6 +924,7 @@ function render(){
   document.getElementById('main-bar').style.width=pctVal+'%';
   document.getElementById('bar-used-label').textContent='Dianggarkan '+fmt(bud);
   document.getElementById('bar-sisa-label').textContent='Sisa '+fmt(sisa);
+  document.getElementById('summary-total-spent').textContent=fmt(spt);
 
   const card=document.getElementById('summary-card');
   card.classList.toggle('warn-state',!isClosed&&ratio>=0.85&&ratio<1);
@@ -780,7 +944,11 @@ function render(){
           ${inc2.carryover?`<div class="income-sublabel">↩ Sisa bulan sebelumnya</div>`:''}
         </div>
         <div class="income-amount${inc2.carryover?' carryover':''}">${fmt(inc2.amount)}</div>
-        ${!isClosed&&!inc2.carryover?`<button class="btn-del-income" onclick="deleteIncome('${inc2.id}')">
+        ${!isClosed&&!inc2.carryover?`
+        <button class="btn-edit-income" onclick="openEditIncome('${inc2.id}')" title="Edit pemasukan">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn-del-income" onclick="deleteIncome('${inc2.id}')" title="Hapus pemasukan">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
         </button>`:''}
       </div>`).join('');
@@ -817,6 +985,7 @@ function render(){
           <div class="cat-meta">
             <div class="cat-name">${cat.name}</div>
             <div class="cat-budget-label">Anggaran ${fmt(cat.budget)}</div>
+            <div class="cat-spent-info">Terpakai ${fmt(cat.spent)}</div>
           </div>
           <div class="cat-sisa">
             <div class="cat-sisa-val ${cls}">${fmt(sa)}</div>
@@ -829,10 +998,19 @@ function render(){
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Catat pengeluaran
           </button>
+          <button class="btn-hist-cat" onclick="openCatHist(${i})" title="Riwayat transaksi">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="16" y1="6" x2="8" y2="6"/><line x1="16" y1="10" x2="8" y2="10"/><line x1="11" y1="14" x2="8" y2="14"/></svg>
+          </button>
+          <button class="btn-edit-cat" onclick="openEditCat(${i})" title="Edit kategori">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
           <button class="btn-del" onclick="deleteCat(${i})">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
           </button>
-        </div>`:`<div class="cat-closed-note">📌 Bulan ini sudah ditutup</div>`}
+        </div>`:`<div class="cat-actions"><button class="btn-hist-cat" onclick="openCatHist(${i})" style="flex:1">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="16" y1="6" x2="8" y2="6"/><line x1="16" y1="10" x2="8" y2="10"/><line x1="11" y1="14" x2="8" y2="14"/></svg>
+            Lihat Riwayat
+          </button><div class="cat-closed-note" style="display:inline-flex;align-items:center;padding:9px 10px">📌 Ditutup</div></div>`}
       </div>`;
     }).join('');
   }
@@ -884,7 +1062,7 @@ function render(){
           <div class="history-bar" style="width:${ratio}%;background:${ratio>=100?'var(--red)':ratio>=85?'var(--amber)':'var(--accent)'}"></div>
         </div>
         <div class="history-row"><span class="history-key">Pemasukan</span><span class="history-val">${fmt(h.totalIncome)}</span></div>
-        <div class="history-row"><span class="history-key">Terpakai</span><span class="history-val danger">${fmt(h.totalSpent)}</span></div>
+        <div class="history-row"><span class="history-key">Total Pengeluaran</span><span class="history-val danger">${fmt(h.totalSpent)}</span></div>
         <div class="history-row"><span class="history-key">Sisa dipindahkan</span><span class="history-val ${sisaOk?'ok':'danger'}">${fmt(Math.max(0,h.sisa))}</span></div>
       </div>`;
     }).join('');
